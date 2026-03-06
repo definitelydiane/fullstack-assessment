@@ -33,11 +33,12 @@ interface Product {
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalProducts, setTotalProducts] = useState<number>(0);
   const [categories, setCategories] = useState<string[]>([]);
   const [subCategories, setSubCategories] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [selectedSubCategory, setSelectedSubCategory] = useState<
     string | undefined
@@ -52,12 +53,14 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedCategory) {
-      fetch(`/api/subcategories`)
+      const params = new URLSearchParams({ category: selectedCategory });
+      fetch(`/api/subcategories?${params}`)
         .then((res) => res.json())
-        .then((data) => setSubCategories(data.subCategories));
+        .then((data) => {
+          setSubCategories(data.subCategories);
+        });
     } else {
       setSubCategories([]);
-      setSelectedSubCategory(undefined);
     }
   }, [selectedCategory]);
 
@@ -73,6 +76,7 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.products);
+        setTotalProducts(data.total);
         setLoading(false);
       });
   }, [search, selectedCategory, selectedSubCategory]);
@@ -135,8 +139,8 @@ export default function Home() {
                 variant="outline"
                 onClick={() => {
                   setSearch("");
-                  setSelectedCategory(undefined);
-                  setSelectedSubCategory(undefined);
+                  setSelectedCategory("");
+                  setSelectedSubCategory("");
                 }}
               >
                 Clear Filters
@@ -158,15 +162,14 @@ export default function Home() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground mb-4">
-              Showing {products.length} products
+              Showing {products.length} of {totalProducts} products
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
                 <Link
                   key={product.stacklineSku}
                   href={{
-                    pathname: "/product",
-                    query: { product: JSON.stringify(product) },
+                    pathname: `/product/${product.stacklineSku}`,
                   }}
                 >
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">

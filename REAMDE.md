@@ -86,12 +86,7 @@ fetch(`/api/subcategories?category=${selectedCategory}`)
 which ended up introducing a bug, that being categories with spaces would break the
 request. Ideally we'd prefer to pass in a `categoryId` here instead of the string name
 of a category, but since that would require refactoring the API a bit, we can just
-use `URLSearchParams` to safely encode it:
-
-```js
-const params = new URLSearchParams({ category: selectedCategory });
-fetch(`/api/subcategories?${params}`)
-```
+use `URLSearchParams` to safely encode it.
 
 # Telling users how many products we have
 Right now we only have text that says something like `Showing 20 products`. This leaves users either
@@ -114,7 +109,7 @@ button. We'll do the same for the `selectedSubCategory`.
 # Notes and Things I didn't get to addressing
 
 ## Changing a category does not immediately clear the subcategory
-I believe this is a bug I introduced from the way I cleared the filter dropdowns.
+I believe this is a bug I introduced from clearing the filter dropdowns.
 
 If we are filtering our results, say Tablets>E-Readers and we change our category in the UI to
 `Baby Skin & Hair Care` then the products will not update correctly and show a "No products found"
